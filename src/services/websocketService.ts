@@ -39,13 +39,6 @@ export class WebSocketService extends EventEmitter {
         this.llmCallback = callback;
     }
 
-    connect(accessToken: string) {
-        this.currentToken = accessToken;
-        const url = `wss://chat.api.restream.io/ws?accessToken=${accessToken}`;
-        this.ws = new WebSocket(url);
-        this.setupEventHandlers();
-    }
-
     private handleWebSocketMessage = (event: MessageEvent) => {
         try {
             const data = JSON.parse(event.data);
@@ -167,59 +160,6 @@ export class WebSocketService extends EventEmitter {
         }
     }
 
-    async reconnectWithNewToken(newToken: string) {
-        // If there's an ongoing reconnection, wait for it to finish
-        if (this.reconnectionPromise) {
-            await this.reconnectionPromise;
-            // If the tokens match after waiting, we don't need to reconnect again
-            if (this.currentToken === newToken) {
-                return;
-            }
-        }
-
-        // Create new reconnection promise
-        this.reconnectionPromise = (async () => {
-            console.log('Reconnecting with new token');
-            this.isReconnecting = true;
-            
-            try {
-                const url = `wss://chat.api.restream.io/ws?accessToken=${newToken}`;
-                const newWs = new WebSocket(url);
-                
-                await new Promise((resolve, reject) => {
-                    newWs.onopen = () => {
-                        console.log('WebSocket connection established with new token');
-                        resolve(true);
-                    };
-                    newWs.onerror = (error) => reject(error);
-                });
-
-                this.currentToken = newToken;
-
-                if (this.ws) {
-                    console.log('Closing old connection');
-
-                    // clear event handlers for close on old connection
-                    // this prevents connectionChange from being emitted
-                    this.ws.onclose = null;
-                    
-                    this.ws.close();
-                }
-
-                this.ws = newWs;
-                this.setupEventHandlers();
-                this.emit('connectionChange', true);
-
-                console.log('Finished reconnecting with new token');
-            } finally {
-                this.isReconnecting = false;
-                this.reconnectionPromise = null;
-            }
-        })();
-
-        // Wait for the reconnection to complete
-        await this.reconnectionPromise;
-    }
 }
 
 export const websocketService = new WebSocketService(); 
