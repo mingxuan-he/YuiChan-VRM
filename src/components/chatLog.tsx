@@ -41,7 +41,7 @@ const Chat = ({ role, message }: { role: string; message: string }) => {
   const offsetX = role === "user" ? "pl-40" : "pr-40";
 
   return (
-    <div className={`mx-auto max-w-lg w-full my-16 ${offsetX}`}>
+    <div className={`mx-auto sm:max-w-lg w-full my-16 ${offsetX}`}>
       <div
         className={`px-24 py-8 rounded-t-8 font-Montserrat font-bold tracking-wider ${roleColor}`}
       >
