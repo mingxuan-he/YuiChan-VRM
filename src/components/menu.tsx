@@ -163,7 +163,7 @@ export const Menu = ({
           )}
         </div>
       </div>
-      {showChatLog && <ChatLog messages={chatLog} />}
+      
       {showSettings && (
         <Settings
           openAiKey={openAiKey}
@@ -190,9 +190,7 @@ export const Menu = ({
           onChangeOpenRouterKey={onChangeOpenRouterKey}
         />
       )}
-      {!showChatLog && assistantMessage && (
-        <AssistantText message={assistantMessage} />
-      )}
+      {<ChatLog messages={chatLog} />}
       <input
         type="file"
         className="hidden"
